@@ -43,7 +43,7 @@ h1{font-size:22px;font-weight:700;margin:8px 0 2px;letter-spacing:-0.01em}
 h2{font-size:15px;font-weight:600;margin:28px 0 10px;color:var(--ink)}
 .sub{color:var(--muted);font-size:14px;margin:0}
 /* subject switch: answer-sheet header strip */
-.subject{display:grid;grid-template-columns:1fr 1fr;border:1.5px solid var(--omr-fill);border-radius:6px;overflow:hidden;margin:18px 0 6px;background:var(--sheet)}
+.subject{display:grid;grid-template-columns:1fr 1fr 1fr;border:1.5px solid var(--omr-fill);border-radius:6px;overflow:hidden;margin:18px 0 6px;background:var(--sheet)}
 .subject button{border:0;background:transparent;padding:12px 8px;font-weight:600;color:var(--muted)}
 .subject button[aria-pressed="true"]{background:var(--omr-fill);color:var(--on-fill)}
 .panel{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:14px}
@@ -152,7 +152,7 @@ function home(){
   <h1>전산직 기출 풀이</h1>
   <p class="sub">9급 전산직 기출을 휴대폰으로 풉니다.</p>
   <div class="subject" role="group" aria-label="과목">
-    ${['cs','is'].map(k=>`<button data-subj="${k}" aria-pressed="${state.subj===k}">${DATA[k].name}</button>`).join('')}
+    ${['cs','is'].map(k=>`<button data-subj="${k}" aria-pressed="${state.subj===k}">${DATA[k].name}</button>`).join('')}<button data-go="concept" aria-pressed="false">개념 회상</button>
   </div>
   <p class="note">${S().name} ${S().q.length.toLocaleString()}문항 · ${ex.length}회차</p>
 
@@ -183,6 +183,7 @@ function home(){
   h+=`</div>`;
   app.innerHTML=h;
   app.querySelectorAll('[data-subj]').forEach(b=>b.onclick=()=>{state.subj=b.dataset.subj;LS.set('subj',state.subj);home()});
+  app.querySelectorAll('[data-go="concept"]').forEach(b=>b.onclick=()=>{location.href='./concept/'});
   app.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{state.count=+b.dataset.count;LS.set('count',state.count);home()});
   app.querySelectorAll('[data-instant]').forEach(b=>b.onclick=()=>{state.instant=b.dataset.instant==='1';LS.set('instant',state.instant);home()});
   app.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{const s=new Set(selParts());const p=+b.dataset.part;s.has(p)?s.delete(p):s.add(p);state.parts[state.subj]=s;const y=window.scrollY;home();window.scrollTo(0,y)});
