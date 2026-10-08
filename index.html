@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F6FB">
+<title>전산직 기출 풀이</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6FB; --sheet:#FFFFFF; --ink:#2B3245; --muted:#6B7285; --line:#E1E4EE;
+  --omr:#7D93D3; --omr-soft:#EBEFFB; --omr-fill:#C9D5F3; --on-fill:#2B3245;
+  --ok:#5FA883; --ok-soft:#E9F6EF; --ok-fill:#BFE4CF;
+  --bad:#D98C8C; --bad-soft:#FCEFEF; --bad-fill:#F4CACA; --mark:#4A5578;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#191C26; --sheet:#222634; --ink:#E7EAF3; --muted:#A3A9BC; --line:#343A4C;
+  --omr:#A9BBEB; --omr-soft:#2C3349; --omr-fill:#5C6E9E; --on-fill:#F2F4FA;
+  --ok:#8FD1AE; --ok-soft:#21382D; --ok-fill:#3F7A5C;
+  --bad:#EDA9A9; --bad-soft:#3D2A2E; --bad-fill:#8A5258; --mark:#C9D2EC;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#191C26; --sheet:#222634; --ink:#E7EAF3; --muted:#A3A9BC; --line:#343A4C;
+  --omr:#A9BBEB; --omr-soft:#2C3349; --omr-fill:#5C6E9E; --on-fill:#F2F4FA;
+  --ok:#8FD1AE; --ok-soft:#21382D; --ok-fill:#3F7A5C;
+  --bad:#EDA9A9; --bad-soft:#3D2A2E; --bad-fill:#8A5258; --mark:#C9D2EC;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--omr);outline-offset:2px}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 120px}
+h1{font-size:22px;font-weight:700;margin:8px 0 2px;letter-spacing:-0.01em}
+h2{font-size:15px;font-weight:600;margin:28px 0 10px;color:var(--ink)}
+.sub{color:var(--muted);font-size:14px;margin:0}
+/* subject switch: answer-sheet header strip */
+.subject{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--omr-fill);border-radius:6px;overflow:hidden;margin:18px 0 6px;background:var(--sheet)}
+.subject button{border:0;background:transparent;padding:12px 8px;font-weight:600;color:var(--muted)}
+.subject button[aria-pressed="true"]{background:var(--omr-fill);color:var(--on-fill)}
+.subject button:nth-child(n+4){border-top:1px solid var(--line)}
+.subject .concept{grid-column:span 2}
+.panel{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:7px 14px;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--omr-soft);color:var(--ink);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:14px;padding:4px 11px;font-size:13px;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--omr);color:var(--ink);background:var(--omr-soft);font-weight:500}
+.primary{display:block;width:100%;margin-top:14px;border:0;border-radius:8px;background:var(--omr-fill);color:var(--on-fill);font-weight:600;padding:13px;font-size:16px}
+.primary:disabled{opacity:.4}
+.ghost{border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:10px 14px;font-size:14px}
+.label{font-size:14px;color:var(--muted)}
+.year{margin-top:14px}
+.year > .yh{font-size:13px;color:var(--muted);font-weight:600;margin:0 2px 6px}
+.exam{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:11px 14px;margin-bottom:6px}
+.exam .t{font-weight:500}
+.exam .s{font-size:13px;color:var(--muted)}
+.exam .s.done{color:var(--ok);font-weight:600}
+.note{font-size:13px;color:var(--muted);margin-top:8px}
+/* quiz */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding:10px 0 8px;border-bottom:1px solid var(--line)}
+.top .row{max-width:640px;margin:0 auto;padding:0 16px}
+.top .cnt{font-weight:600;font-variant-numeric:tabular-nums}
+.x{border:0;background:transparent;font-size:15px;color:var(--muted);padding:6px 0}
+.strip{display:flex;gap:4px;overflow-x:auto;max-width:640px;margin:8px auto 0;padding:2px 16px 4px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+.dot{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--omr-fill);background:transparent;font-size:10px;line-height:19px;text-align:center;color:var(--muted);padding:0;font-variant-numeric:tabular-nums}
+.dot.filled{background:var(--omr-fill);border-color:var(--omr-fill);color:var(--on-fill)}
+.dot.ok{background:var(--ok-fill);border-color:var(--ok-fill);color:var(--on-fill)}
+.dot.bad{background:var(--bad-fill);border-color:var(--bad-fill);color:var(--on-fill)}
+.dot.cur{box-shadow:0 0 0 2px var(--paper),0 0 0 4px var(--omr)}
+.meta{font-size:13px;color:var(--muted);margin:16px 0 6px}
+.qtext{font-size:17px;line-height:1.7;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+.qtext .lead{font-weight:500}
+pre.code{font-family:var(--mono);font-size:13px;line-height:1.55;background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:10px 12px;overflow-x:auto;white-space:pre;margin:10px 0 0}
+.box{background:var(--sheet);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:15px;white-space:pre-wrap;overflow-x:auto}
+.fig{margin-top:12px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px;text-align:center}
+.fig img{max-width:100%;height:auto;display:block;margin:0 auto}
+.choices{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.ch{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:11px 12px}
+.ch .b{flex:0 0 auto;width:26px;height:26px;border-radius:50%;border:1.5px solid var(--omr);color:var(--omr);font-size:13px;font-weight:600;line-height:23px;text-align:center;margin-top:1px}
+.ch .ct{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-size:15.5px}
+.ch.sel .b{background:var(--omr-fill);border-color:var(--omr-fill);color:var(--on-fill)}
+.ch.sel{border-color:var(--omr);background:var(--omr-soft)}
+.ch.right{border-color:var(--ok);background:var(--ok-soft)}
+.ch.right .b{background:var(--ok-fill);border-color:var(--ok-fill);color:var(--on-fill)}
+.ch.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.ch.wrong .b{background:var(--bad-fill);border-color:var(--bad-fill);color:var(--on-fill)}
+.ch[disabled]{cursor:default}
+.ch.code .ct{font-family:var(--mono);font-size:13.5px}
+.verdict{margin-top:12px;font-weight:600}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--paper);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bottom .row{max-width:608px;margin:0 auto}
+.bottom button{flex:1;padding:12px;border-radius:8px;font-weight:600}
+.bottom .prev{border:1px solid var(--line);background:var(--sheet)}
+.bottom .next{border:0;background:var(--omr-fill);color:var(--on-fill)}
+.bottom .grade{border:0;background:var(--ok-fill);color:var(--on-fill)}
+/* result */
+.score{display:flex;align-items:baseline;gap:6px;margin:18px 0 4px}
+.score .big{font-size:56px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;color:var(--omr)}
+.score .of{font-size:20px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sheetgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.sheetgrid .dot{width:100%;height:auto;aspect-ratio:1;border-radius:50%;font-size:13px;line-height:normal;display:flex;align-items:center;justify-content:center;max-width:44px;justify-self:center}
+.parts{margin-top:8px}
+.parts .pr{display:flex;justify-content:space-between;font-size:14px;padding:7px 0;border-bottom:1px solid var(--line)}
+.parts .pr span:last-child{font-variant-numeric:tabular-nums;color:var(--muted)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+.dispute{margin-top:10px;font-size:14px;line-height:1.6;background:var(--omr-soft);border-left:3px solid var(--omr);border-radius:4px;padding:8px 10px;color:var(--ink)}
+.dispute b{font-weight:600}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const CIRC=['①','②','③','④','⑤'];
+/* 과목: 키(cs·is)는 기존 오답·기록 저장 키와 같아야 함 */
+const SUBJ={
+  cs:{name:'컴퓨터일반',file:'computer_questions.json'},
+  is:{name:'정보보호론',file:'security_questions.json'},
+  al:{name:'알고리즘',file:'algorithm_questions.json'},
+  ai:{name:'인공지능',file:'ai_questions.json'}
+};
+const BANK={};
+const state={subj:SUBJ[LS.get('subj','cs')]?LS.get('subj','cs'):'cs',count:LS.get('count',25),instant:LS.get('instant',true),grade:LS.get('grade','all'),parts:{},quiz:null};
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function S(){return BANK[state.subj]}
+
+/* ---------- 데이터 불러오기 ---------- */
+function pack(r){return {i:r.id,e:r.exam,y:r.year,g:r.grade,x:r.exam_id,n:r.number,p:r.part,pn:r.part_name,q:r.question,c:r.choices,a:r.answer,
+  f:r.figure?'data/'+r.figure:null,note:r.answer_check==='disputed'?(r.answer_note||'풀이 방식에 따라 답이 갈릴 수 있습니다.'):null}}
+function load(k){
+  if(BANK[k]) return Promise.resolve(BANK[k]);
+  return fetch('data/'+SUBJ[k].file).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()})
+    .then(d=>{const q=d.map(pack);const gs=new Set(q.map(x=>x.g));BANK[k]={name:SUBJ[k].name,q,both:gs.has(7)&&gs.has(9)};return BANK[k]});
+}
+function go(k){
+  state.subj=k; LS.set('subj',k);
+  if(BANK[k]) return home();
+  app.innerHTML=`<div class="wrap"><h1>전산직 기출 풀이</h1><p class="note">${SUBJ[k].name} 문항을 불러오는 중…</p></div>`;
+  load(k).then(home).catch(()=>{
+    app.innerHTML=`<div class="wrap"><h1>전산직 기출 풀이</h1><div class="panel" style="margin-top:18px">
+    <p style="margin:0 0 6px;font-weight:600">문항 파일을 불러오지 못했습니다.</p>
+    <p class="note" style="margin:0">data 폴더의 ${SUBJ[k].file}을 읽지 못했습니다. 파일을 더블클릭해 직접 열면 브라우저가 data 폴더 읽기를 막습니다. GitHub Pages 주소로 열거나 로컬 서버(예: python -m http.server)로 열어 주세요.</p>
+    <button class="primary" id="retryLoad">다시 시도</button></div></div>`;
+    document.getElementById('retryLoad').onclick=()=>go(k);
+  });
+}
+
+/* ---------- 이름·정렬 ---------- */
+const ORDER=['국가직','국가직(추가)','지방직','지방직(추가)','서울시','국회직','교육행정직','계리직','군무원','기타'];
+const SUB7={db:'데이터베이스론',ds:'자료구조론',se:'소프트웨어공학'};
+const SUB7_ORDER=['','db','ds','se'];
+function examName(e){return e==='기타'?'국민안전처':e}
+function sub7(x){const m=/7-(db|ds|se)$/.exec(x);return m?m[1]:''}
+function examLabel(e,g,x){return g===7?`${examName(e)} 7급${sub7(x)?' '+SUB7[sub7(x)]:''}`:examName(e)}
+function shortPart(n){return n.replace(/\s*\(.*\)\s*$/,'')}
+
+function gradeMode(){return S().both?state.grade:'all'}
+function gradeOk(q){const m=gradeMode();return m==='all'||String(q.g)===m}
+function partsOf(){const m=new Map();S().q.forEach(q=>{if(!m.has(q.p))m.set(q.p,q.pn)});return [...m.entries()].sort((a,b)=>a[0]-b[0])}
+function examsOf(){const m=new Map();S().q.forEach(q=>{if(!m.has(q.x))m.set(q.x,{x:q.x,y:q.y,e:q.e,g:q.g,n:0});m.get(q.x).n++});return [...m.values()]}
+function examCmp(a,b){return (b.g-a.g)||(ORDER.indexOf(a.e)-ORDER.indexOf(b.e))||(SUB7_ORDER.indexOf(sub7(a.x))-SUB7_ORDER.indexOf(sub7(b.x)))}
+function wrongKey(){return 'wrong_'+state.subj}
+function histKey(){return 'hist_'+state.subj}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function selParts(){const p=state.parts[state.subj];return p||new Set(partsOf().map(x=>x[0]))}
+
+/* ---------- home ---------- */
+function home(){
+  state.quiz=null; window.scrollTo(0,0);
+  const sp=selParts(), parts=partsOf(), gm=gradeMode();
+  const pool=S().q.filter(q=>sp.has(q.p)&&gradeOk(q)).length;
+  const wrong=LS.get(wrongKey(),[]); const ids=new Set(S().q.map(q=>q.i)); const wrongValid=wrong.filter(id=>ids.has(id));
+  const hist=LS.get(histKey(),{});
+  const exAll=examsOf(); const ex=exAll.filter(e=>gm==='all'||String(e.g)===gm);
+  const years=[...new Set(ex.map(e=>e.y))].sort((a,b)=>b-a);
+  const n9=S().q.filter(q=>q.g===9).length, n7=S().q.length-n9;
+  let h=`<div class="wrap">
+  <h1>전산직 기출 풀이</h1>
+  <p class="sub">9급·7급 전산직 기출을 휴대폰으로 풉니다.</p>
+  <div class="subject" role="group" aria-label="과목">
+    ${Object.keys(SUBJ).map(k=>`<button data-subj="${k}" aria-pressed="${state.subj===k}">${SUBJ[k].name}</button>`).join('')}<button class="concept" data-go="concept" aria-pressed="false">개념 회상</button>
+  </div>
+  <p class="note">${S().name} ${S().q.length.toLocaleString()}문항${n9&&n7?` (9급 ${n9.toLocaleString()} · 7급 ${n7.toLocaleString()})`:n7?' (7급)':''} · ${exAll.length}회차</p>
+  ${S().both?`<div class="row" style="margin-top:10px"><span class="label">범위</span>
+    <div class="seg" role="group" aria-label="급수">${[['all','전체'],['9','9급만'],['7','7급만']].map(([v,t])=>`<button data-grade="${v}" aria-pressed="${gm===v}">${t}</button>`).join('')}</div></div>`:''}
+
+  <h2>무작위 모의고사</h2>
+  <div class="panel">
+    <div class="row"><span class="label">문항 수</span>
+      <div class="seg" role="group" aria-label="문항 수">${[25,20].map(n=>`<button data-count="${n}" aria-pressed="${state.count===n}">${n}문항</button>`).join('')}</div></div>
+    <div class="row" style="margin-top:10px"><span class="label">채점</span>
+      <div class="seg" role="group" aria-label="채점 방식"><button data-instant="1" aria-pressed="${state.instant}">바로 확인</button><button data-instant="0" aria-pressed="${!state.instant}">끝나고 채점</button></div></div>
+    <div class="chips" role="group" aria-label="단원">${parts.map(([p,n])=>`<button class="chip" data-part="${p}" aria-pressed="${sp.has(p)}">${esc(shortPart(n))}</button>`).join('')}</div>
+    <button class="primary" id="startRandom" ${pool?'':'disabled'}>${Math.min(state.count,pool)}문항 풀기</button>
+    <p class="note">선택한 단원${gm==='all'?'':` (${gm}급)`} ${pool.toLocaleString()}문항에서 무작위로 뽑습니다. 단원을 눌러 켜고 끕니다.</p>
+  </div>
+
+  <h2>틀린 문제</h2>
+  <div class="panel">
+    ${wrongValid.length?`<div class="row"><span>${wrongValid.length}문항 저장됨</span><button class="ghost" id="clearWrong">비우기</button></div>
+    <button class="primary" id="startWrong">틀린 문제 ${Math.min(wrongValid.length,state.count)}문항 풀기</button>
+    <p class="note">다시 풀어서 맞힌 문제는 목록에서 빠집니다.</p>`:`<p class="empty">아직 틀린 문제가 없습니다. 채점하면 틀린 문제가 여기에 모입니다.</p>`}
+  </div>
+
+  <h2>회차별 시험</h2>`;
+  years.forEach(y=>{
+    const list=ex.filter(e=>e.y===y).sort(examCmp);
+    h+=`<div class="year"><div class="yh">${y}</div>`+list.map(e=>{const r=hist[e.x];
+      return `<button class="exam" data-exam="${e.x}"><span class="t">${examLabel(e.e,e.g,e.x)}</span><span class="s ${r?'done':''}">${r?`최근 ${r.s}/${r.t}`:`${e.n}문항`}</span></button>`}).join('')+`</div>`;
+  });
+  h+=`</div>`;
+  app.innerHTML=h;
+  app.querySelectorAll('[data-subj]').forEach(b=>b.onclick=()=>go(b.dataset.subj));
+  app.querySelectorAll('[data-go="concept"]').forEach(b=>b.onclick=()=>{location.href='./concept/'});
+  app.querySelectorAll('[data-grade]').forEach(b=>b.onclick=()=>{state.grade=b.dataset.grade;LS.set('grade',state.grade);home()});
+  app.querySelectorAll('[data-count]').forEach(b=>b.onclick=()=>{state.count=+b.dataset.count;LS.set('count',state.count);home()});
+  app.querySelectorAll('[data-instant]').forEach(b=>b.onclick=()=>{state.instant=b.dataset.instant==='1';LS.set('instant',state.instant);home()});
+  app.querySelectorAll('[data-part]').forEach(b=>b.onclick=()=>{const s=new Set(selParts());const p=+b.dataset.part;s.has(p)?s.delete(p):s.add(p);state.parts[state.subj]=s;const y=window.scrollY;home();window.scrollTo(0,y)});
+  const sr=document.getElementById('startRandom'); if(sr) sr.onclick=()=>{const qs=shuffle(S().q.filter(q=>sp.has(q.p)&&gradeOk(q))).slice(0,state.count);start(qs,'무작위 '+qs.length+'문항',null)};
+  const sw=document.getElementById('startWrong'); if(sw) sw.onclick=()=>{const w=new Set(wrongValid);const qs=shuffle(S().q.filter(q=>w.has(q.i))).slice(0,state.count);start(qs,'틀린 문제 다시 풀기',null,true)};
+  const cw=document.getElementById('clearWrong'); if(cw) cw.onclick=()=>{if(confirm('틀린 문제 목록을 비울까요?')){LS.set(wrongKey(),[]);home()}};
+  app.querySelectorAll('[data-exam]').forEach(b=>b.onclick=()=>{const x=b.dataset.exam;const qs=S().q.filter(q=>q.x===x).sort((a,b)=>a.n-b.n);const e=exAll.find(e=>e.x===x);start(qs,`${e.y} ${examLabel(e.e,e.g,e.x)}`,x)});
+}
+
+/* ---------- quiz ---------- */
+function start(qs,title,examId,isWrong){
+  state.quiz={qs,title,examId,isWrong,i:0,ans:qs.map(()=>null),locked:qs.map(()=>false),graded:false,review:false,t0:Date.now()};
+  quiz();
+}
+const CODE_RE=/[;{}]\s*$|^#include|^\s{4}\S|^(def |class |public |import |for |while |if |print\()/;
+function renderQ(text){
+  const lines=text.split('\n'); const lead=lines.shift();
+  let h=`<div class="lead">${esc(lead)}</div>`; let buf=[],mode=null;
+  const flush=()=>{if(!buf.length)return; h+= mode==='code'?`<pre class="code">${esc(buf.join('\n'))}</pre>`:`<div class="box">${esc(buf.join('\n'))}</div>`; buf=[]};
+  const isCode=lines.some(l=>CODE_RE.test(l));
+  lines.forEach(l=>{const m=isCode?'code':'box'; if(m!==mode){flush();mode=m} buf.push(l)});
+  flush(); return h;
+}
+function isRight(q,a){return a!=null&&q.a.includes(a)}
+function quiz(){
+  const Z=state.quiz, q=Z.qs[Z.i], a=Z.ans[Z.i];
+  const showAns=Z.review||(state.instant&&Z.locked[Z.i]);
+  const codeCh=q.c.some(c=>/[;{}()=]/.test(c)&&/\n/.test(c));
+  let h=`<div class="top"><div class="row"><button class="x" id="quit">${Z.review?'결과로':'그만하기'}</button><span class="cnt">${Z.i+1} / ${Z.qs.length}</span><span class="label" style="min-width:64px;text-align:right">${Z.ans.filter(x=>x!=null).length}개 풂</span></div>
+  <div class="strip" id="strip">${Z.qs.map((qq,k)=>{let c='dot';const aa=Z.ans[k];
+     if(Z.review||(state.instant&&Z.locked[k])) c+= aa==null?'':(isRight(qq,aa)?' ok':' bad'); else if(aa!=null) c+=' filled';
+     if(k===Z.i)c+=' cur';return `<button class="${c}" data-go="${k}" aria-label="${k+1}번">${k+1}</button>`}).join('')}</div></div>
+  <div class="wrap" style="padding-top:4px">
+  <div class="meta">${q.y} ${examLabel(q.e,q.g,q.x)} ${q.n}번, ${esc(shortPart(q.pn))}</div>
+  <div class="qtext">${renderQ(q.q)}</div>
+  ${q.f?`<div class="fig"><img src="${q.f}" alt="${q.n}번 문항 그림" loading="lazy"></div>`:''}
+  <div class="choices">${q.c.map((c,k)=>{let cls='ch'+(codeCh?' code':'');const v=k+1;
+     if(showAns){ if(q.a.includes(v)) cls+=' right'; else if(a===v) cls+=' wrong'; }
+     else if(a===v) cls+=' sel';
+     return `<button class="${cls}" data-pick="${v}" ${showAns?'disabled':''}><span class="b">${v}</span><span class="ct">${esc(c)}</span></button>`}).join('')}</div>
+  ${showAns?`<div class="verdict ${isRight(q,a)?'ok':'bad'}">${a==null?'풀지 않음':isRight(q,a)?'정답':'오답'} · 정답 ${q.a.map(x=>CIRC[x-1]).join(', ')}</div>`:''}
+  ${showAns&&q.note?`<div class="dispute"><b>답이 갈릴 수 있는 문항</b> · 정답은 공식 정답표 기준입니다.<br>${esc(q.note)}</div>`:''}
+  </div>
+  <div class="bottom"><div class="row">
+    <button class="prev" id="prev" ${Z.i===0?'disabled':''}>이전</button>
+    ${Z.i<Z.qs.length-1?`<button class="next" id="next">다음</button>`:(Z.review?`<button class="next" id="toResult">결과 보기</button>`:`<button class="grade" id="grade">채점하기</button>`)}
+  </div></div>`;
+  app.innerHTML=h;
+  const cur=app.querySelector('.dot.cur'); if(cur) cur.scrollIntoView({inline:'center',block:'nearest'});
+  app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{Z.i=+b.dataset.go;quiz();window.scrollTo(0,0)});
+  app.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const v=+b.dataset.pick;
+     if(state.instant){Z.ans[Z.i]=v;Z.locked[Z.i]=true;quiz()} else {Z.ans[Z.i]=(Z.ans[Z.i]===v?null:v);quiz()}});
+  const mv=d=>{Z.i+=d;quiz();window.scrollTo(0,0)};
+  document.getElementById('prev').onclick=()=>mv(-1);
+  const n=document.getElementById('next'); if(n) n.onclick=()=>mv(1);
+  const g=document.getElementById('grade'); if(g) g.onclick=()=>{const un=Z.ans.filter(x=>x==null).length; if(un&&!confirm(`안 푼 문제가 ${un}개 있습니다. 채점할까요?`))return; grade()};
+  const tr=document.getElementById('toResult'); if(tr) tr.onclick=result;
+  document.getElementById('quit').onclick=()=>{ if(Z.review) return result(); if(Z.ans.some(x=>x!=null)&&!confirm('지금 그만두면 기록되지 않습니다. 나갈까요?'))return; home()};
+}
+function grade(){
+  const Z=state.quiz; Z.graded=true; Z.t1=Date.now();
+  let wrong=new Set(LS.get(wrongKey(),[]));
+  Z.qs.forEach((q,k)=>{ if(isRight(q,Z.ans[k])) wrong.delete(q.i); else wrong.add(q.i); });
+  LS.set(wrongKey(),[...wrong]);
+  const s=Z.qs.filter((q,k)=>isRight(q,Z.ans[k])).length;
+  if(Z.examId){const h=LS.get(histKey(),{});h[Z.examId]={s,t:Z.qs.length,d:Date.now()};LS.set(histKey(),h)}
+  result();
+}
+function result(){
+  const Z=state.quiz; Z.review=false; window.scrollTo(0,0);
+  const s=Z.qs.filter((q,k)=>isRight(q,Z.ans[k])).length, t=Z.qs.length;
+  const min=Math.max(1,Math.round(((Z.t1||Date.now())-Z.t0)/60000));
+  const byPart=new Map(); Z.qs.forEach((q,k)=>{const n=shortPart(q.pn);const o=byPart.get(n)||{s:0,t:0};o.t++;if(isRight(q,Z.ans[k]))o.s++;byPart.set(n,o)});
+  let h=`<div class="wrap">
+  <p class="sub">${esc(Z.title)}</p>
+  <div class="score"><span class="big">${s}</span><span class="of">/ ${t}</span></div>
+  <p class="sub">${Math.round(s/t*100)}점 환산 · 약 ${min}분</p>
+  <h2>답안지</h2>
+  <div class="sheetgrid">${Z.qs.map((q,k)=>`<button class="dot ${isRight(q,Z.ans[k])?'ok':'bad'}" data-rv="${k}" aria-label="${k+1}번 ${isRight(q,Z.ans[k])?'정답':'오답'}">${k+1}</button>`).join('')}</div>
+  <p class="note">번호를 누르면 해당 문제를 정답과 함께 다시 봅니다.</p>
+  <h2>단원별</h2>
+  <div class="parts">${[...byPart.entries()].sort((a,b)=>(a[1].s/a[1].t)-(b[1].s/b[1].t)).map(([n,o])=>`<div class="pr"><span>${esc(n)}</span><span>${o.s} / ${o.t}</span></div>`).join('')}</div>
+  <div class="actions">
+    <button class="ghost" id="retry">같은 문제 다시</button>
+    <button class="ghost" id="home">처음으로</button>
+  </div></div>`;
+  app.innerHTML=h;
+  app.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{Z.review=true;Z.i=+b.dataset.rv;quiz();window.scrollTo(0,0)});
+  document.getElementById('retry').onclick=()=>start(Z.examId?Z.qs:shuffle(Z.qs),Z.title,Z.examId,Z.isWrong);
+  document.getElementById('home').onclick=home;
+}
+go(state.subj);
+})();
+</script>
+</body>
+</html>
