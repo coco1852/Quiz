@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F6FB">
+<title>문제 검색</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F5F6FB; --sheet:#FFFFFF; --ink:#2B3245; --muted:#6B7285; --line:#E1E4EE;
+  --omr:#7D93D3; --omr-soft:#EBEFFB; --omr-fill:#C9D5F3; --ok:#5FA883; --ok-soft:#E9F6EF; --hl:#FFF0B3;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#191C26; --sheet:#222634; --ink:#E7EAF3; --muted:#A3A9BC; --line:#343A4C;
+    --omr:#A9BBEB; --omr-soft:#2C3349; --omr-fill:#5C6E9E; --ok:#8FD1AE; --ok-soft:#21382D; --hl:#5A4E1E;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#191C26; --sheet:#222634; --ink:#E7EAF3; --muted:#A3A9BC; --line:#343A4C;
+  --omr:#A9BBEB; --omr-soft:#2C3349; --omr-fill:#5C6E9E; --ok:#8FD1AE; --ok-soft:#21382D; --hl:#5A4E1E;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+button,input{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:16px 16px 100px}
+.head{position:sticky;top:0;z-index:5;background:var(--paper);padding:10px 0 10px;border-bottom:1px solid var(--line)}
+h1{font-size:20px;margin:0 0 8px;display:flex;align-items:center;gap:10px}
+h1 a{font-size:13px;font-weight:500;color:var(--omr);text-decoration:none;margin-left:auto}
+#q{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--sheet);font-size:16px}
+#q:focus{outline:2px solid var(--omr);outline-offset:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips button{border:1px solid var(--line);background:var(--sheet);border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--omr-fill);border-color:var(--omr)}
+.opts{display:flex;gap:14px;align-items:center;margin-top:8px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.opts label{display:flex;gap:5px;align-items:center;cursor:pointer}
+#stat{margin-left:auto}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:10px}
+.meta{font-size:12px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.meta .id{font-family:var(--mono);cursor:pointer}
+.meta .id:hover{color:var(--omr)}
+.tag{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:0 5px}
+.qt{white-space:pre-wrap;word-break:break-word;margin-top:4px}
+.qt.code{font-family:var(--mono);font-size:14px}
+ol{margin:6px 0 0;padding:0;list-style:none}
+ol li{padding:1px 0 1px 1.6em;text-indent:-1.6em;white-space:pre-wrap;word-break:break-word}
+ol li.ans{color:var(--ok);font-weight:600}
+.sol{margin-top:6px;padding:6px 10px;border-radius:6px;background:var(--ok-soft);font-size:14px;white-space:pre-wrap;word-break:break-word}
+mark{background:var(--hl);color:inherit;border-radius:2px}
+img{max-width:100%;margin-top:8px;border:1px solid var(--line);border-radius:6px;background:#fff}
+#more{display:block;margin:16px auto;padding:9px 20px;border:1px solid var(--line);border-radius:8px;background:var(--sheet);cursor:pointer}
+.empty{color:var(--muted);text-align:center;margin-top:40px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="head">
+    <h1>문제 검색 <a href="./">← 풀이로</a></h1>
+    <input id="q" type="search" placeholder="낱말 여러 개는 띄어서 (예: 해시 충돌)" autocomplete="off" autofocus>
+    <div class="chips" id="chips"></div>
+    <div class="opts">
+      <label><input type="checkbox" id="showAns" checked> 정답 표시</label>
+      <label><input type="checkbox" id="inChoice" checked> 보기까지 검색</label>
+      <span id="stat">불러오는 중…</span>
+    </div>
+  </div>
+  <div id="list"></div>
+</div>
+<script>
+const SUBJ={
+  cs:{name:'컴퓨터일반',file:'computer_questions.json'},
+  is:{name:'정보보호론',file:'security_questions.json'},
+  al:{name:'알고리즘',file:'algorithm_questions.json'},
+  ai:{name:'인공지능',file:'ai_questions.json'},
+  jc:{name:'정처기 필기',file:'jeongcheo_questions.json'},
+  js:{name:'정처기 실기',file:'jeongcheo_practical_questions.json'},
+  bo:{name:'정보보안기사',file:'boan_questions.json'},
+  pt:{name:'빈출 유형',file:'pattern_questions.json'}
+};
+const LS={get(k,d){try{const v=localStorage.getItem('srch_'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},
+          set(k,v){try{localStorage.setItem('srch_'+k,JSON.stringify(v))}catch(e){}}};
+const on=new Set(LS.get('subj',Object.keys(SUBJ)).filter(k=>SUBJ[k]));
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CIRC='①②③④⑤⑥⑦⑧';
+let ALL=[], hits=[], shown=0, terms=[];
+const PAGE=40;
+$('showAns').checked=LS.get('ans',true); $('inChoice').checked=LS.get('ch',true);
+
+function label(r){
+  if(r.booklet==='빈출 유형') return `${/실기/.test(r.exam)?'실기':'필기'} 빈출 · ${r.part_name} ${r.number}번`;
+  if(r.grade==='기사') return `${r.exam} ${r.year} ${r.round}회 ${r.number}번`;
+  return `${r.year} ${r.exam} ${r.grade}급 ${r.number}번`;
+}
+const norm=s=>String(s||'').toLowerCase().replace(/\s+/g,'');
+
+async function load(){
+  const res=await Promise.all(Object.entries(SUBJ).map(async([k,s])=>{
+    try{const d=await (await fetch('data/'+s.file)).json();return d.map(r=>({k,r}))}catch(e){return []}
+  }));
+  ALL=res.flat();
+  ALL.forEach(o=>{const r=o.r;
+    o.lab=label(r);
+    o.nq=norm(r.question+' '+(r.part_name||'')+' '+r.id);
+    o.nc=norm((r.choices||[]).join(' ')+' '+(r.answer_text||'')+' '+(r.accepted||[]).join(' '));
+  });
+  chips(); run();
+}
+function chips(){
+  $('chips').innerHTML=Object.entries(SUBJ).map(([k,s])=>{
+    const n=ALL.filter(o=>o.k===k).length;
+    return `<button data-k="${k}" aria-pressed="${on.has(k)}">${s.name} <span style="color:var(--muted)">${n.toLocaleString()}</span></button>`}).join('');
+  $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k; on.has(k)?on.delete(k):on.add(k); LS.set('subj',[...on]); chips(); run();});
+}
+function hl(text){
+  let h=esc(text); if(!terms.length) return h;
+  // 띄어쓰기 무시 검색이므로 낱말 글자 사이에 공백을 허용해 표시
+  terms.forEach(t=>{
+    const pat=[...t].map(c=>esc(c).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('\\s*');
+    try{h=h.replace(new RegExp('('+pat+')(?![^<]*>)','gi'),'<mark>$1</mark>')}catch(e){}
+  });
+  return h;
+}
+function card(o){
+  const r=o.r, ans=$('showAns').checked, a=new Set(r.answer||[]);
+  const isCode=r.type==='code';
+  let h=`<div class="card"><div class="meta"><span>${esc(SUBJ[o.k].name)}</span><span>${esc(o.lab)}</span>`+
+    (r.part_name&&r.booklet!=='빈출 유형'?`<span>${esc(r.part_name)}</span>`:'')+
+    (r.answer_check==='disputed'?'<span class="tag">정답 논란</span>':'')+
+    `<span class="id" title="눌러서 복사">${esc(r.id)}</span></div>`+
+    `<div class="qt${isCode?' code':''}">${hl(r.question)}</div>`;
+  if(r.figure) h+=`<img loading="lazy" src="data/${esc(r.figure)}" alt="${esc(o.lab)} 그림">`;
+  if(r.choices&&r.choices.length) h+='<ol>'+r.choices.map((c,i)=>`<li class="${ans&&a.has(i+1)?'ans':''}">${CIRC[i]||i+1} ${hl(c)}</li>`).join('')+'</ol>';
+  if(ans&&r.answer_text!=null) h+=`<div class="sol">정답: ${hl(r.answer_text)}</div>`;
+  if(ans&&r.answer_note) h+=`<div class="meta" style="margin-top:4px">참고: ${esc(r.answer_note)}</div>`;
+  return h+'</div>';
+}
+function run(){
+  const raw=$('q').value.trim();
+  terms=raw.split(/\s+/).filter(Boolean).map(t=>t.toLowerCase());
+  const nt=terms.map(norm), ch=$('inChoice').checked;
+  hits=ALL.filter(o=>on.has(o.k)&&nt.every(t=>o.nq.includes(t)||(ch&&o.nc.includes(t))));
+  shown=0; $('list').innerHTML='';
+  if(!raw){ $('stat').textContent=`${hits.length.toLocaleString()}문항`; $('list').innerHTML='<p class="empty">찾을 낱말을 입력하세요. 띄어쓰기는 무시하고 찾습니다.<br>문항 ID(예: 2023-boan1-061)로도 찾을 수 있습니다.</p>'; return; }
+  $('stat').textContent=`${hits.length.toLocaleString()}건`;
+  if(!hits.length){ $('list').innerHTML='<p class="empty">맞는 문제가 없습니다.</p>'; return; }
+  more();
+}
+function more(){
+  const old=$('more'); if(old) old.remove();
+  $('list').insertAdjacentHTML('beforeend',hits.slice(shown,shown+PAGE).map(card).join(''));
+  shown=Math.min(shown+PAGE,hits.length);
+  if(shown<hits.length){
+    $('list').insertAdjacentHTML('beforeend',`<button id="more">더 보기 (${shown} / ${hits.length})</button>`);
+    $('more').onclick=more;
+  }
+}
+let tm; $('q').addEventListener('input',()=>{clearTimeout(tm);tm=setTimeout(run,200)});
+$('showAns').onchange=()=>{LS.set('ans',$('showAns').checked);run()};
+$('inChoice').onchange=()=>{LS.set('ch',$('inChoice').checked);run()};
+$('list').addEventListener('click',e=>{const t=e.target.closest('.id');if(!t)return;
+  navigator.clipboard&&navigator.clipboard.writeText(t.textContent).then(()=>{const o=t.textContent;t.textContent='복사됨';setTimeout(()=>t.textContent=o,900)}).catch(()=>{})});
+const q0=new URLSearchParams(location.search).get('q'); if(q0) $('q').value=q0;
+load();
+</script>
+</body>
+</html>
